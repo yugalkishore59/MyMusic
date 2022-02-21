@@ -11,7 +11,7 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/now_playing_song_image"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_marginTop="40dp"
@@ -22,89 +22,92 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/now_playing_song_name"
             android:layout_width="wrap_content"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:fontFamily="sans-serif-black"
-            android:text="TextView"
+            android:text="rap god"
+            android:maxLines="1"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_image" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/now_playing_song_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:fontFamily="sans-serif-thin"
-            android:text="TextView"
+            android:text="Eminum"
+            android:maxLines="1"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_name" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/now_playing_song_cur_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:text="59:59:59"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView2" />
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/now_playing_song_end_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:text="59:59:59"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView2" />
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
 
         <SeekBar
-            android:id="@+id/seekBar2"
+            android:id="@+id/now_playing_song_seekBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:thumb="@drawable/thumb_seekbar_custom"
-            app:layout_constraintEnd_toStartOf="@+id/textView6"
-            app:layout_constraintStart_toEndOf="@+id/textView5"
-            app:layout_constraintTop_toBottomOf="@+id/textView2" />
+            app:layout_constraintEnd_toStartOf="@+id/now_playing_song_end_time"
+            app:layout_constraintStart_toEndOf="@+id/now_playing_song_cur_time"
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/now_playing_song_play"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginBottom="30dp"
             android:src="@drawable/ic_play"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/seekBar2" />
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_seekBar" />
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/now_playing_song_prevoius"
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_marginEnd="40dp"
             android:layout_marginBottom="30dp"
             android:src="@drawable/ic_previous"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageView2"
-            app:layout_constraintTop_toBottomOf="@+id/seekBar2" />
+            app:layout_constraintEnd_toStartOf="@+id/now_playing_song_play"
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_seekBar" />
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/now_playing_song_next"
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_marginStart="44dp"
             android:layout_marginBottom="30dp"
             android:src="@drawable/ic_next"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView2"
-            app:layout_constraintTop_toBottomOf="@+id/seekBar2" />
+            app:layout_constraintStart_toEndOf="@+id/now_playing_song_play"
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_seekBar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
