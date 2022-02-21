@@ -6,15 +6,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.fetchhere.mymusic.fragments.now_playing_fragment;
+
 import java.util.ArrayList;
 
 public class view_page_adapter extends FragmentPagerAdapter {
 
-    private ArrayList<Fragment> fragmentList= new ArrayList<>();
+    public ArrayList<Fragment> fragmentList= new ArrayList<>();
     private ArrayList<String> fragmenTitletList= new ArrayList<>();
+    FragmentManager fragMan;
 
     public view_page_adapter(@NonNull FragmentManager fm, int behavior) {
         super(fm, behavior);
+        fragMan=fm;
     }
 
     @NonNull
@@ -38,4 +42,6 @@ public class view_page_adapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         return fragmenTitletList.get(position);
     }
+
+
 }

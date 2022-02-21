@@ -1,6 +1,8 @@
 package com.fetchhere.mymusic;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
+
+import com.fetchhere.mymusic.fragments.now_playing_fragment;
 
 import java.io.File;
 import java.util.List;
@@ -64,8 +70,9 @@ public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapt
 
         @Override
         public void onClick(View view) {
-            //Log.d("ClickFromViewHolder", "Clicked");
-
+            int position = this.getAdapterPosition();
+            ViewPager viewPager = (ViewPager) ((Activity)context).findViewById(R.id.view_pager);
+            viewPager.setCurrentItem(1);
         }
     }
 }

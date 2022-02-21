@@ -12,8 +12,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
 import android.widget.Toast;
 
 import com.fetchhere.mymusic.fragments.all_songs_fragment;
@@ -32,8 +35,10 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 public class MainActivity extends AppCompatActivity {
     private TabLayout tab_layout;
     private ViewPager view_pager;
+    public view_page_adapter adapter;
 
     ArrayList<File> allSongs;
+
 
     private static final String LIST_KEY = "all songs";
 
@@ -139,11 +144,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (allSongs == null)
             scanMusic();
-        view_page_adapter adapter = new view_page_adapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        adapter = new view_page_adapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         adapter.addFragments(new all_songs_fragment(allSongs), "All songs");
-        adapter.addFragments(new now_playing_fragment(), "Now Playing");
+        adapter.addFragments(new now_playing_fragment(allSongs), "Playing");
         adapter.addFragments(new favourite_fragment(), "Favourites");
         view_pager.setAdapter(adapter);
+
     }
+
 
 }
