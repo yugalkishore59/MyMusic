@@ -133,26 +133,17 @@ public class MainActivity extends AppCompatActivity {
         writeArrayListInPref(this,allSongs);
     }
 
-    void listSongs(){
-
-
-    }
-
     void continueActivity() {
-
-        view_page_adapter adapter = new view_page_adapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        adapter.addFragments(new all_songs_fragment(), "All songs");
-        adapter.addFragments(new now_playing_fragment(), "Now Playing");
-        adapter.addFragments(new favourite_fragment(), "Favourites");
-        view_pager.setAdapter(adapter);
 
         allSongs = readListFromPref(this);
 
         if (allSongs == null)
             scanMusic();
-
-        listSongs();
-
+        view_page_adapter adapter = new view_page_adapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        adapter.addFragments(new all_songs_fragment(allSongs), "All songs");
+        adapter.addFragments(new now_playing_fragment(), "Now Playing");
+        adapter.addFragments(new favourite_fragment(), "Favourites");
+        view_pager.setAdapter(adapter);
     }
 
 }
