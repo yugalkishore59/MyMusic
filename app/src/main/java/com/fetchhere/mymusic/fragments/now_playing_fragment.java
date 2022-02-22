@@ -11,11 +11,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -28,14 +32,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static java.lang.Integer.parseInt;
+
 public class now_playing_fragment extends Fragment {
 
     Button btnPlay, btnNext, btnPrevious;
     TextView txtSongName,txtArtistName, txtSongStart, txtSongEnd;
     SeekBar seekMusicBar;
-
+    boolean isSeeking=false;
 
     ImageView imgAlbumImage;
+
+    Thread updateSeekBar;
 
     public ArrayList<File> AllSongsArrayList;
     Context thisContext;
@@ -60,7 +68,7 @@ public class now_playing_fragment extends Fragment {
                              Bundle savedInstanceState) {
         thisContext=container.getContext();
         sharedPreferencesVariables=this.getActivity().getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+        //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
         return inflater.inflate(R.layout.fragment_now_playing_fragment, container, false);
     }
 
@@ -81,6 +89,90 @@ public class now_playing_fragment extends Fragment {
 
         imgAlbumImage = (ImageView) view.findViewById(R.id.now_playing_song_image);
 
+        //Implementing OnClickListener for previous Button
+        btnPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Checking for list start
+                if (pos>0) {
+                    pos-=1; //previous index
+                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt("currentSongIndex", pos);
+                    editor.commit();
+                    setSongDetails(pos);
+                    play_current_song(pos);
+
+                } else {
+                    pos=AllSongsArrayList.size()-1;
+                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt("currentSongIndex", pos);
+                    editor.commit();
+                    setSongDetails(pos);
+                    play_current_song(pos);
+                }
+            }
+        });
+
+        //Implementing OnClickListener for next Button
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Checking for list end
+                if (pos<AllSongsArrayList.size()) {
+                    pos+=1; //next index
+                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt("currentSongIndex", pos);
+                    editor.commit();
+                    setSongDetails(pos);
+                    play_current_song(pos);
+
+                } else {
+                    pos=0;
+                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt("currentSongIndex", pos);
+                    editor.commit();
+                    setSongDetails(0);
+                    play_current_song(0);
+                }
+            }
+        });
+
+        //Implementing OnClickListener for Play and Pause Button
+        btnPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Checking playing any songs or not
+                if (mediaPlayer.isPlaying()) {
+
+                    //setting the play icon
+                    btnPlay.setBackgroundResource(R.drawable.ic_play);
+
+                    //Pausing the current media
+                    mediaPlayer.pause();
+
+                } else {
+
+                    //Setting the pause icon
+                    btnPlay.setBackgroundResource(R.drawable.ic_pause);
+
+                    //Starting the media player
+                    if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
+                        mediaPlayer.start();
+                    }
+                    else{
+                        pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
+                        setSongDetails(pos);
+                        play_current_song(pos);
+                    }
+                }
+            }
+        });
+
+
+
     }
 
     public void play_current_song(final int pos){
@@ -91,24 +183,97 @@ public class now_playing_fragment extends Fragment {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     ///mediaPlayer.release();
-                    if(pos<AllSongsArrayList.size()+1){
+                    if(pos<AllSongsArrayList.size()){
+                        SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                        editor.putInt("currentSongIndex", pos+1);
+                        editor.commit();
                         play_current_song(pos+1);
+                        setSongDetails(pos+1);
                     }
-                    else
+                    else {
+                        SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                        editor.putInt("currentSongIndex", 0);
+                        editor.commit();
                         play_current_song(0);
+                        setSongDetails(0);
+                    }
                 }
             });
 
         mediaPlayer.start();
+        updateSeekBar = new Thread() {
+            @Override
+            public void run() {
+
+                int TotalDuration = mediaPlayer.getDuration();
+                int CurrentPosition = 0;
+
+                while (CurrentPosition < TotalDuration) {
+                    try {
+                        if(!isSeeking){
+                            sleep(500);
+                            CurrentPosition = mediaPlayer.getCurrentPosition();
+                            seekMusicBar.setProgress(CurrentPosition);
+                        }
+
+
+                    } catch (InterruptedException | IllegalStateException e) {
+
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        };
+        seekMusicBar.setMax(mediaPlayer.getDuration());
+        updateSeekBar.start();
+        seekMusicBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            isSeeking=true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                //getting the progress of the seek bar and setting it to Media Player
+                mediaPlayer.seekTo(seekBar.getProgress());
+                isSeeking=false;
+
+            }
+        });
+        //Creating the Handler to update the current duration
+        final Handler handler = new Handler();
+        final int delay = 1000;
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                //Getting the current duration from the media player
+                String currentTime = createDuration(mediaPlayer.getCurrentPosition());
+
+                //Setting the current duration in textView
+                txtSongStart.setText(currentTime);
+                handler.postDelayed(this, delay);
+
+            }
+        }, delay);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
-
+            btnPlay.setBackgroundResource(R.drawable.ic_pause);
         }
         else{
+            btnPlay.setBackgroundResource(R.drawable.ic_pause);
             pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
             setSongDetails(pos);
             play_current_song(pos);
@@ -165,8 +330,28 @@ public class now_playing_fragment extends Fragment {
             txtSongName.setText(c.getString(3)); //getting song name
             c.getString(4);
             c.getString(5);
-            txtSongEnd.setText(c.getString(6)); //getting length
+            txtSongEnd.setText(createDuration(parseInt(c.getString(6)))); //getting length
             c.getString(7);
         }
+
+    }
+
+    //Preparing the Time format for setting to textView
+    public String createDuration(int duration) {
+
+        String time = "";
+        int min = duration / 1000 / 60;
+        int sec = duration / 1000 % 60;
+
+        time = time + min + ":";
+
+        if (sec < 10) {
+
+            time += "0";
+
+        }
+        time += sec;
+        return time;
+
     }
 }
