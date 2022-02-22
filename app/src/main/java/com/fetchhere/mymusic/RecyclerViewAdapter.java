@@ -2,6 +2,7 @@ package com.fetchhere.mymusic;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,8 @@ public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapt
 
     private Context context;
     private List<File> songtList;
+    SharedPreferences sharedPreferencesVariables;
+    SharedPreferences.Editor editor;
 
     public RecyclerViewAdapter(Context context, List<File> songtList) {
         this.context = context;
@@ -72,6 +75,10 @@ public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapt
         public void onClick(View view) {
             int position = this.getAdapterPosition();
             ViewPager viewPager = (ViewPager) ((Activity)context).findViewById(R.id.view_pager);
+            sharedPreferencesVariables=context.getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+            editor.putInt("currentSongIndex", position);
+            editor.commit();
             viewPager.setCurrentItem(1);
         }
     }
