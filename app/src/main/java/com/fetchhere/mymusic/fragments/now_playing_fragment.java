@@ -1,6 +1,7 @@
 package com.fetchhere.mymusic.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,9 +27,14 @@ public class now_playing_fragment extends Fragment {
     public ArrayList<File> AllSongsArrayList;
     Context thisContext;
     MediaPlayer mediaPlayer;
+    int pos = -1; //current song temp pos
+
+    SharedPreferences sharedPreferencesVariables;
+    SharedPreferences.Editor editor;
 
     public now_playing_fragment(ArrayList<File> SongsArrayList){
         AllSongsArrayList=SongsArrayList;
+
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,8 @@ public class now_playing_fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         thisContext=container.getContext();
+        sharedPreferencesVariables=this.getActivity().getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
         return inflater.inflate(R.layout.fragment_now_playing_fragment, container, false);
     }
 
@@ -50,7 +58,7 @@ public class now_playing_fragment extends Fragment {
 
     public void play_current_song(int pos){
 
-        if (mediaPlayer == null) {
+        if (mediaPlayer!=null){ mediaPlayer.stop();}
             mediaPlayer = MediaPlayer.create(thisContext, Uri.parse(AllSongsArrayList.get(pos).toString()));
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
@@ -58,8 +66,24 @@ public class now_playing_fragment extends Fragment {
                     mediaPlayer.release();
                 }
             });
-        }
 
         mediaPlayer.start();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
+
+        }
+        else{
+            pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
+            play_current_song(pos);}
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //mediaPlayer.pause();
     }
 }
