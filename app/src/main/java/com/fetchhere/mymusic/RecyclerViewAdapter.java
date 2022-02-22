@@ -3,7 +3,10 @@ package com.fetchhere.mymusic;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.fetchhere.mymusic.fragments.now_playing_fragment;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
@@ -42,10 +47,48 @@ public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapt
     // What to do with the viewholder object
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.ViewHolder holder, int position) {
+        //getting song name
         File song = songtList.get(position);
-
         holder.songName.setText(song.getName().toString().replace(".mp3", "").replace(".wav", ""));
-        //holder.artistName.setText(song.());
+        //getting other info
+        String CanonicalPath=songtList.get(position).getAbsolutePath();
+        try {
+            CanonicalPath = songtList.get(position).getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Cursor c = context.getContentResolver().query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                new String[] {
+                        MediaStore.Audio.Media.ALBUM,
+                        MediaStore.Audio.Media.ARTIST,
+                        MediaStore.Audio.Media.TRACK,
+                        MediaStore.Audio.Media.TITLE,
+                        MediaStore.Audio.Media.DISPLAY_NAME,
+                        MediaStore.Audio.Media.DATA,
+                        MediaStore.Audio.Media.DURATION,
+                        MediaStore.Audio.Media.YEAR
+                },
+                MediaStore.Audio.Media.DATA + " = ?",
+                new String[] {
+                        CanonicalPath
+                },
+                "");
+
+        if (null == c) {
+            // ERROR
+        }
+
+        while (c.moveToNext()) {
+            c.getString(0);
+            holder.artistName.setText(c.getString(1)); //getting artist name
+            c.getString(2);
+            c.getString(3);
+            c.getString(4);
+            c.getString(5);
+            c.getString(6);
+            c.getString(7);
+        }
     }
 
     //how many  viewholder objects
