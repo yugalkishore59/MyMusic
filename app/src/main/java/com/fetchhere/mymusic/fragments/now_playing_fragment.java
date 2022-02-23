@@ -93,6 +93,7 @@ public class now_playing_fragment extends Fragment {
         btnPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                btnPlay.setBackgroundResource(R.drawable.ic_pause);
 
                 //Checking for list start
                 if (pos>0) {
@@ -118,9 +119,10 @@ public class now_playing_fragment extends Fragment {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                btnPlay.setBackgroundResource(R.drawable.ic_pause);
 
                 //Checking for list end
-                if (pos<AllSongsArrayList.size()) {
+                if (pos<AllSongsArrayList.size()-1) {
                     pos+=1; //next index
                     SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                     editor.putInt("currentSongIndex", pos);
@@ -133,8 +135,8 @@ public class now_playing_fragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                     editor.putInt("currentSongIndex", pos);
                     editor.commit();
-                    setSongDetails(0);
-                    play_current_song(0);
+                    setSongDetails(pos);
+                    play_current_song(pos);
                 }
             }
         });
@@ -175,27 +177,29 @@ public class now_playing_fragment extends Fragment {
 
     }
 
-    public void play_current_song(final int pos){
+    public void play_current_song(final int position){
 
         if (mediaPlayer!=null){ mediaPlayer.stop();}
-            mediaPlayer = MediaPlayer.create(thisContext, Uri.parse(AllSongsArrayList.get(pos).toString()));
+            mediaPlayer = MediaPlayer.create(thisContext, Uri.parse(AllSongsArrayList.get(position).toString()));
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     ///mediaPlayer.release();
-                    if(pos<AllSongsArrayList.size()){
+                    if(pos<AllSongsArrayList.size()-1){
+                        pos+=1;
                         SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-                        editor.putInt("currentSongIndex", pos+1);
+                        editor.putInt("currentSongIndex", pos);
                         editor.commit();
-                        play_current_song(pos+1);
-                        setSongDetails(pos+1);
+                        play_current_song(pos);
+                        setSongDetails(pos);
                     }
                     else {
+                        pos=0;
                         SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                         editor.putInt("currentSongIndex", 0);
                         editor.commit();
-                        play_current_song(0);
-                        setSongDetails(0);
+                        play_current_song(pos);
+                        setSongDetails(pos);
                     }
                 }
             });
@@ -270,10 +274,14 @@ public class now_playing_fragment extends Fragment {
     public void onResume() {
         super.onResume();
         if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
-            btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            if(mediaPlayer==null) btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            else if(mediaPlayer.isPlaying())  btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            else btnPlay.setBackgroundResource(R.drawable.ic_play);
         }
         else{
-            btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            if(mediaPlayer==null) btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            else if(mediaPlayer.isPlaying())  btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            else btnPlay.setBackgroundResource(R.drawable.ic_play);
             pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
             setSongDetails(pos);
             play_current_song(pos);
@@ -333,6 +341,7 @@ public class now_playing_fragment extends Fragment {
             txtSongEnd.setText(createDuration(parseInt(c.getString(6)))); //getting length
             c.getString(7);
         }
+        c.close();
 
     }
 
