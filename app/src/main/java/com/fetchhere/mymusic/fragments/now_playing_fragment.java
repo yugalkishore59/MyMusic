@@ -47,7 +47,7 @@ public class now_playing_fragment extends Fragment {
 
     public ArrayList<File> AllSongsArrayList;
     Context thisContext;
-    MediaPlayer mediaPlayer;
+    static MediaPlayer mediaPlayer;
     int pos = -1; //current song temp pos
 
     SharedPreferences sharedPreferencesVariables;
@@ -292,12 +292,6 @@ public class now_playing_fragment extends Fragment {
     public void onPause() {
         super.onPause();
         //mediaPlayer.pause();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mediaPlayer.release();
     }
 
     void setSongDetails(int position){

@@ -50,16 +50,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:text="59:59:59"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
+            app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist"
+            tools:text="00" />
 
         <TextView
             android:id="@+id/now_playing_song_end_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:text="59:59:59"
+            android:text="00"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
 
