@@ -279,9 +279,7 @@ public class now_playing_fragment extends Fragment {
             else btnPlay.setBackgroundResource(R.drawable.ic_play);
         }
         else{
-            if(mediaPlayer==null) btnPlay.setBackgroundResource(R.drawable.ic_pause);
-            else if(mediaPlayer.isPlaying())  btnPlay.setBackgroundResource(R.drawable.ic_pause);
-            else btnPlay.setBackgroundResource(R.drawable.ic_play);
+            btnPlay.setBackgroundResource(R.drawable.ic_pause);
             pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
             setSongDetails(pos);
             play_current_song(pos);
