@@ -5,19 +5,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import androidx.viewpager2.widget.ViewPager2;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.View;
-import android.widget.Toast;
 
 import com.fetchhere.mymusic.fragments.all_songs_fragment;
 import com.fetchhere.mymusic.fragments.favourite_fragment;
@@ -134,8 +127,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void scanMusic(){
-        File sdfile = new File("/storage/3263-3464");
-        allSongs=findSong(sdfile);
+
+        File[] sdfile = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
+        for (int i=0;i< sdfile.length;i++)
+        {
+            String path = sdfile[i].getParent().replace("/Android/data/","").replace(getPackageName(),"");
+            sdfile[i]= new File(path);
+        }
+
+        allSongs=findSong(sdfile[1]);
         writeArrayListInPref(this,allSongs);
     }
 

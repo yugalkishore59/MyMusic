@@ -49,9 +49,14 @@ public class all_songs_fragment extends Fragment {
         recyclerView=(RecyclerView) view.findViewById(R.id.recycler_View);
         no_songs_text=(TextView) view.findViewById(R.id.no_songs_textView);
         //recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(thisContext));
-
-        recyclerViewAdapter = new RecyclerViewAdapter(thisContext, AllSongsArrayList);
-        recyclerView.setAdapter(recyclerViewAdapter);
+        if(AllSongsArrayList.size()==0){
+            no_songs_text.setVisibility(View.VISIBLE);
+        }
+        else {
+            no_songs_text.setVisibility(View.GONE);
+            recyclerView.setLayoutManager(new LinearLayoutManager(thisContext));
+            recyclerViewAdapter = new RecyclerViewAdapter(thisContext, AllSongsArrayList);
+            recyclerView.setAdapter(recyclerViewAdapter);
+        }
     }
 }
