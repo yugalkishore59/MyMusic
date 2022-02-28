@@ -101,16 +101,36 @@ public class now_playing_fragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                     editor.putInt("currentSongIndex", pos);
                     editor.commit();
-                    setSongDetails(pos);
-                    play_current_song(pos);
+                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        setSongDetails(pos);
+                        play_current_song(pos);
+                    }
+                    else{
+                        txtSongName.setText("Song Doesn't Exist!!");
+                        txtArtistName.setText("please update list by rescanning");
+                        btnPlay.setBackgroundResource(R.drawable.ic_play);
+                        if(mediaPlayer!=null){
+                            mediaPlayer.stop();
+                        }
+                    }
 
                 } else {
                     pos=AllSongsArrayList.size()-1;
                     SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                     editor.putInt("currentSongIndex", pos);
                     editor.commit();
-                    setSongDetails(pos);
-                    play_current_song(pos);
+                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        setSongDetails(pos);
+                        play_current_song(pos);
+                    }
+                    else{
+                        txtSongName.setText("Song Doesn't Exist!!");
+                        txtArtistName.setText("please update list by rescanning");
+                        btnPlay.setBackgroundResource(R.drawable.ic_play);
+                        if(mediaPlayer!=null){
+                            mediaPlayer.stop();
+                        }
+                    }
                 }
             }
         });
@@ -127,16 +147,36 @@ public class now_playing_fragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                     editor.putInt("currentSongIndex", pos);
                     editor.commit();
-                    setSongDetails(pos);
-                    play_current_song(pos);
+                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        setSongDetails(pos);
+                        play_current_song(pos);
+                    }
+                    else{
+                        txtSongName.setText("Song Doesn't Exist!!");
+                        txtArtistName.setText("please update list by rescanning");
+                        btnPlay.setBackgroundResource(R.drawable.ic_play);
+                        if(mediaPlayer!=null){
+                            mediaPlayer.stop();
+                        }
+                    }
 
                 } else {
                     pos=0;
                     SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                     editor.putInt("currentSongIndex", pos);
                     editor.commit();
-                    setSongDetails(pos);
-                    play_current_song(pos);
+                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        setSongDetails(pos);
+                        play_current_song(pos);
+                    }
+                    else{
+                        txtSongName.setText("Song Doesn't Exist!!");
+                        txtArtistName.setText("please update list by rescanning");
+                        btnPlay.setBackgroundResource(R.drawable.ic_play);
+                        if(mediaPlayer!=null){
+                            mediaPlayer.stop();
+                        }
+                    }
                 }
             }
         });
@@ -147,7 +187,7 @@ public class now_playing_fragment extends Fragment {
             public void onClick(View view) {
 
                 //Checking playing any songs or not
-                if (mediaPlayer.isPlaying()) {
+                if (mediaPlayer!=null&&mediaPlayer.isPlaying()) {
 
                     //setting the play icon
                     btnPlay.setBackgroundResource(R.drawable.ic_play);
@@ -162,12 +202,33 @@ public class now_playing_fragment extends Fragment {
 
                     //Starting the media player
                     if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
-                        mediaPlayer.start();
+
+                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                            mediaPlayer.start();
+                        }
+                        else{
+                            txtSongName.setText("Song Doesn't Exist!!");
+                            txtArtistName.setText("please update list by rescanning");
+                            btnPlay.setBackgroundResource(R.drawable.ic_play);
+                            if(mediaPlayer!=null){
+                                mediaPlayer.stop();
+                            }
+                        }
                     }
                     else{
                         pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
-                        setSongDetails(pos);
-                        play_current_song(pos);
+                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                            setSongDetails(pos);
+                            play_current_song(pos);
+                        }
+                        else{
+                            txtSongName.setText("Song Doesn't Exist!!");
+                            txtArtistName.setText("please update list by rescanning");
+                            btnPlay.setBackgroundResource(R.drawable.ic_play);
+                            if(mediaPlayer!=null){
+                                mediaPlayer.stop();
+                            }
+                        }
                     }
                 }
             }
@@ -190,16 +251,36 @@ public class now_playing_fragment extends Fragment {
                         SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                         editor.putInt("currentSongIndex", pos);
                         editor.commit();
-                        play_current_song(pos);
-                        setSongDetails(pos);
+                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                            setSongDetails(pos);
+                            play_current_song(pos);
+                        }
+                        else{
+                            txtSongName.setText("Song Doesn't Exist!!");
+                            txtArtistName.setText("please update list by rescanning");
+                            btnPlay.setBackgroundResource(R.drawable.ic_play);
+                            if(mediaPlayer!=null){
+                                mediaPlayer.stop();
+                            }
+                        }
                     }
                     else {
                         pos=0;
                         SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
                         editor.putInt("currentSongIndex", 0);
                         editor.commit();
-                        play_current_song(pos);
-                        setSongDetails(pos);
+                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                            setSongDetails(pos);
+                            play_current_song(pos);
+                        }
+                        else{
+                            txtSongName.setText("Song Doesn't Exist!!");
+                            txtArtistName.setText("please update list by rescanning");
+                            btnPlay.setBackgroundResource(R.drawable.ic_play);
+                            if(mediaPlayer!=null){
+                                mediaPlayer.stop();
+                            }
+                        }
                     }
                 }
             });
@@ -246,7 +327,13 @@ public class now_playing_fragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
 
                 //getting the progress of the seek bar and setting it to Media Player
-                mediaPlayer.seekTo(seekBar.getProgress());
+                if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                    mediaPlayer.seekTo(seekBar.getProgress());
+                }
+                else{
+                    seekBar.setMax(0);
+                    seekBar.setProgress(0);
+                }
                 isSeeking=false;
 
             }
@@ -274,15 +361,25 @@ public class now_playing_fragment extends Fragment {
     public void onResume() {
         super.onResume();
         if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
-            if(mediaPlayer==null) btnPlay.setBackgroundResource(R.drawable.ic_pause);
-            else if(mediaPlayer.isPlaying())  btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            if(mediaPlayer==null) btnPlay.setBackgroundResource(R.drawable.ic_play);
+            else if(mediaPlayer.isPlaying()&&AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists())  btnPlay.setBackgroundResource(R.drawable.ic_pause);
             else btnPlay.setBackgroundResource(R.drawable.ic_play);
         }
         else{
             btnPlay.setBackgroundResource(R.drawable.ic_pause);
             pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
-            setSongDetails(pos);
-            play_current_song(pos);
+            if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                setSongDetails(pos);
+                play_current_song(pos);
+            }
+            else{
+                txtSongName.setText("Song Doesn't Exist!!");
+                txtArtistName.setText("please update list by rescanning");
+                btnPlay.setBackgroundResource(R.drawable.ic_play);
+                if(mediaPlayer!=null){
+                    mediaPlayer.stop();
+                }
+            }
         }
     }
 
