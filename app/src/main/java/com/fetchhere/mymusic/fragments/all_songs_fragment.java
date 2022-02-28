@@ -24,7 +24,6 @@ public class all_songs_fragment extends Fragment {
     private TextView no_songs_text;
     private RecyclerViewAdapter recyclerViewAdapter;
     public ArrayList<File> AllSongsArrayList;
-    private ArrayAdapter<String> arrayAdapter;
     Context thisContext;
 
     public all_songs_fragment(ArrayList<File> SongsArrayList){
