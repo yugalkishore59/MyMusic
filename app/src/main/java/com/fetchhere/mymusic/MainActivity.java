@@ -135,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
             sdfile[i]= new File(path);
         }
 
-        allSongs=findSong(sdfile[1]);
+        allSongs=findSong(sdfile[0]);
+        allSongs.addAll(findSong(sdfile[1]));
         writeArrayListInPref(this,allSongs);
     }
 
