@@ -9,8 +9,12 @@ import androidx.viewpager.widget.ViewPager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.TextView;
 
 import com.fetchhere.mymusic.fragments.all_songs_fragment;
 import com.fetchhere.mymusic.fragments.favourite_fragment;
@@ -107,18 +111,27 @@ public class MainActivity extends AppCompatActivity {
         //ArrayList to store all songs
         ArrayList<File> arrayList = new ArrayList<>();
         File[] files = rootFolder.listFiles();
+        Uri uri;
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+
 
         for (File singleFile : files) {
 
             //Adding the directory to arrayList if it is not hidden
             if (singleFile.isDirectory() && !singleFile.isHidden()) {
 
-                arrayList.addAll(findSong(singleFile));
+                File noMedia=new File(singleFile.getAbsolutePath()+"/.nomedia");
+                if(!noMedia.exists()) arrayList.addAll(findSong(singleFile));
 
             } else {
                 //Adding the single music file to ArrayList
                 if (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) {
-                    arrayList.add(singleFile);
+
+                    uri = Uri.parse(singleFile.getAbsolutePath());
+                    mmr.setDataSource(this,uri);
+                    String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                    int millSecond = Integer.parseInt(durationStr);
+                    if(millSecond>60000)arrayList.add(singleFile);
                 }
             }
         }
@@ -127,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void scanMusic(){
+
 
         File[] sdfile = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
         for (int i=0;i< sdfile.length;i++)
@@ -138,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
         allSongs=findSong(sdfile[0]);
         allSongs.addAll(findSong(sdfile[1]));
         writeArrayListInPref(this,allSongs);
+
     }
 
     void continueActivity() {
