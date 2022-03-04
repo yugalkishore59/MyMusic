@@ -360,6 +360,9 @@ public class now_playing_fragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        //ERROR : if shared preference is greater than song list
+
         if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
             if(mediaPlayer==null) btnPlay.setBackgroundResource(R.drawable.ic_play);
             else if(mediaPlayer.isPlaying()&&AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists())  btnPlay.setBackgroundResource(R.drawable.ic_pause);

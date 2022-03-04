@@ -144,12 +144,14 @@ public class all_songs_fragment extends Fragment {
                 @Override
                 public void onClick(View view) {
 
-                    ViewPager viewPager = (ViewPager) ((Activity)thisContext).findViewById(R.id.view_pager);
-                    sharedPreferencesVariable=thisContext.getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferencesVariable.edit();
-                    editor.putInt("currentSongIndex", 0);
-                    editor.commit();
-                    viewPager.setCurrentItem(1);
+                    //ViewPager viewPager = (ViewPager) ((Activity)thisContext).findViewById(R.id.view_pager);
+                    //sharedPreferencesVariable=thisContext.getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
+                    //SharedPreferences.Editor editor = sharedPreferencesVariable.edit();
+                    //editor.putInt("currentSongIndex", 0);
+                    //editor.commit();
+                    Collections.shuffle(AllSongsArrayList);
+                    recyclerViewAdapter.notifyDataSetChanged();
+                    //viewPager.setCurrentItem(1);
                 }
             });
 
