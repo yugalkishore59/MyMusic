@@ -393,6 +393,8 @@ public class now_playing_fragment extends Fragment {
         //File song = AllSongsArrayList.get(position);
         //txtSongName.setText(song.getName().toString().replace(".mp3", "").replace(".wav", ""));
         //getting other info
+        txtSongName.setText(AllSongsArrayList.get(position).getName().replace(".mp3", "").replace(".wav", ""));
+        txtArtistName.setText("<unknown>");
         String CanonicalPath=AllSongsArrayList.get(position).getAbsolutePath();
         try {
             CanonicalPath = AllSongsArrayList.get(position).getCanonicalPath();
