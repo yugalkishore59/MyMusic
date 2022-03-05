@@ -43,8 +43,7 @@ public class all_songs_fragment extends Fragment {
     TextView totalSongs;
 
     public all_songs_fragment(ArrayList<File> SongsArrayList){
-        AllSongsArrayListBackup =SongsArrayList;
-        AllSongsArrayList=SongsArrayList;
+        AllSongsArrayList=AllSongsArrayListBackup=SongsArrayList;
     }
 
     @Override
@@ -94,9 +93,9 @@ public class all_songs_fragment extends Fragment {
                 {
                     switch (position){
                         case 0:
-                            //AllSongsArrayList=new ArrayList<File>();
-                            AllSongsArrayList=AllSongsArrayListBackup;
-                            recyclerViewAdapter.notifyDataSetChanged();
+                            AllSongsArrayList=(ArrayList<File>) AllSongsArrayListBackup.clone();
+                            recyclerViewAdapter = new RecyclerViewAdapter(thisContext, AllSongsArrayList);
+                            recyclerView.setAdapter(recyclerViewAdapter);
                             break;
                         case 1:
                             Collections.sort(AllSongsArrayList, new Comparator<File>() {
