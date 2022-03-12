@@ -177,8 +177,6 @@ public class all_songs_fragment extends Fragment {
                     ((MainActivity)getActivity()).writeArrayListInPref(thisContext.getApplicationContext(),queue,((MainActivity)getActivity()).QUEUE_KEY);
                 }
             });
-
         }
     }
-
 }
