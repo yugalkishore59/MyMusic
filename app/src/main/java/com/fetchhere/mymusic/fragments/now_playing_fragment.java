@@ -8,25 +8,19 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.fetchhere.mymusic.MainActivity;
 import com.fetchhere.mymusic.R;
-import com.fetchhere.mymusic.RecyclerViewAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,16 +39,19 @@ public class now_playing_fragment extends Fragment {
 
     Thread updateSeekBar;
 
-    public ArrayList<File> AllSongsArrayList;
+    public ArrayList<File> queue;
     Context thisContext;
     static MediaPlayer mediaPlayer;
     int pos = -1; //current song temp pos
 
     SharedPreferences sharedPreferencesVariables;
     SharedPreferences.Editor editor;
+    public static final String SHARED_PREF_KEY = "shared Preferences Variables";
+    public static final String CURR_SONG_KEY = "current Song Index";
 
-    public now_playing_fragment(ArrayList<File> SongsArrayList){
-        AllSongsArrayList=SongsArrayList;
+    public now_playing_fragment(ArrayList<File> queueList){
+        //allSongs =allSongsList;
+        queue =queueList;
 
     }
     @Override
@@ -66,9 +63,13 @@ public class now_playing_fragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        thisContext=container.getContext();
-        sharedPreferencesVariables=this.getActivity().getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
+        /*thisContext=container.getContext();
+        sharedPreferencesVariables=this.getActivity().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);*/
         //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+        thisContext=this.getActivity();
+        sharedPreferencesVariables=thisContext.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        editor = sharedPreferencesVariables.edit();
+
         return inflater.inflate(R.layout.fragment_now_playing_fragment, container, false);
     }
 
@@ -98,10 +99,10 @@ public class now_playing_fragment extends Fragment {
                 //Checking for list start
                 if (pos>0) {
                     pos-=1; //previous index
-                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-                    editor.putInt("currentSongIndex", pos);
+                    //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt(CURR_SONG_KEY, pos);
                     editor.commit();
-                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                    if(queue.size()>0&& queue.get(pos).exists()) {
                         setSongDetails(pos);
                         play_current_song(pos);
                     }
@@ -115,11 +116,11 @@ public class now_playing_fragment extends Fragment {
                     }
 
                 } else {
-                    pos=AllSongsArrayList.size()-1;
-                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-                    editor.putInt("currentSongIndex", pos);
+                    pos= queue.size()-1;
+                    //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt(CURR_SONG_KEY, pos);
                     editor.commit();
-                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                    if(queue.size()>0&& queue.get(pos).exists()) {
                         setSongDetails(pos);
                         play_current_song(pos);
                     }
@@ -142,12 +143,12 @@ public class now_playing_fragment extends Fragment {
                 btnPlay.setBackgroundResource(R.drawable.ic_pause);
 
                 //Checking for list end
-                if (pos<AllSongsArrayList.size()-1) {
+                if (pos< queue.size()-1) {
                     pos+=1; //next index
-                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-                    editor.putInt("currentSongIndex", pos);
+                    //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt(CURR_SONG_KEY, pos);
                     editor.commit();
-                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                    if(queue.size()>0&& queue.get(pos).exists()) {
                         setSongDetails(pos);
                         play_current_song(pos);
                     }
@@ -162,10 +163,10 @@ public class now_playing_fragment extends Fragment {
 
                 } else {
                     pos=0;
-                    SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-                    editor.putInt("currentSongIndex", pos);
+                    //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                    editor.putInt(CURR_SONG_KEY, pos);
                     editor.commit();
-                    if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                    if(queue.size()>0&& queue.get(pos).exists()) {
                         setSongDetails(pos);
                         play_current_song(pos);
                     }
@@ -201,9 +202,9 @@ public class now_playing_fragment extends Fragment {
                     btnPlay.setBackgroundResource(R.drawable.ic_pause);
 
                     //Starting the media player
-                    if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
+                    if(pos==sharedPreferencesVariables.getInt(CURR_SONG_KEY,0)){
 
-                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        if(queue.size()>0&& queue.get(pos).exists()) {
                             mediaPlayer.start();
                         }
                         else{
@@ -216,8 +217,8 @@ public class now_playing_fragment extends Fragment {
                         }
                     }
                     else{
-                        pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
-                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        pos=sharedPreferencesVariables.getInt(CURR_SONG_KEY,0);
+                        if(queue.size()>0&& queue.get(pos).exists()) {
                             setSongDetails(pos);
                             play_current_song(pos);
                         }
@@ -241,17 +242,17 @@ public class now_playing_fragment extends Fragment {
     public void play_current_song(final int position){
 
         if (mediaPlayer!=null){ mediaPlayer.stop();}
-            mediaPlayer = MediaPlayer.create(thisContext, Uri.parse(AllSongsArrayList.get(position).toString()));
+            mediaPlayer = MediaPlayer.create(thisContext, Uri.parse(queue.get(position).toString()));
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     ///mediaPlayer.release();
-                    if(pos<AllSongsArrayList.size()-1){
+                    if(pos< queue.size()-1){
                         pos+=1;
-                        SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-                        editor.putInt("currentSongIndex", pos);
+                        //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                        editor.putInt(CURR_SONG_KEY, pos);
                         editor.commit();
-                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        if(queue.size()>0&& queue.get(pos).exists()) {
                             setSongDetails(pos);
                             play_current_song(pos);
                         }
@@ -266,10 +267,10 @@ public class now_playing_fragment extends Fragment {
                     }
                     else {
                         pos=0;
-                        SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-                        editor.putInt("currentSongIndex", 0);
+                        //SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
+                        editor.putInt(CURR_SONG_KEY, 0);
                         editor.commit();
-                        if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                        if(queue.size()>0&& queue.get(pos).exists()) {
                             setSongDetails(pos);
                             play_current_song(pos);
                         }
@@ -327,7 +328,7 @@ public class now_playing_fragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
 
                 //getting the progress of the seek bar and setting it to Media Player
-                if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+                if(queue.size()>0&& queue.get(pos).exists()) {
                     mediaPlayer.seekTo(seekBar.getProgress());
                 }
                 else{
@@ -361,17 +362,20 @@ public class now_playing_fragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        //ERROR : if shared preference is greater than song list
+        if(queue!=((MainActivity)getActivity()).readListFromPref(thisContext.getApplicationContext(),((MainActivity)getActivity()).QUEUE_KEY)){
+            queue=((MainActivity)getActivity()).readListFromPref(thisContext.getApplicationContext(),((MainActivity)getActivity()).QUEUE_KEY);
+        }
 
-        if(pos==sharedPreferencesVariables.getInt("currentSongIndex",0)){
+        //ERROR : if shared preference is greater than song list. FIXED ig
+        if(pos==sharedPreferencesVariables.getInt(CURR_SONG_KEY,0)){
             if(mediaPlayer==null) btnPlay.setBackgroundResource(R.drawable.ic_play);
-            else if(mediaPlayer.isPlaying()&&AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists())  btnPlay.setBackgroundResource(R.drawable.ic_pause);
+            else if(mediaPlayer.isPlaying()&& queue.size()>0&& queue.get(pos).exists())  btnPlay.setBackgroundResource(R.drawable.ic_pause);
             else btnPlay.setBackgroundResource(R.drawable.ic_play);
         }
         else{
             btnPlay.setBackgroundResource(R.drawable.ic_pause);
-            pos=sharedPreferencesVariables.getInt("currentSongIndex",0);
-            if(AllSongsArrayList.size()>0&&AllSongsArrayList.get(pos).exists()) {
+            pos=sharedPreferencesVariables.getInt(CURR_SONG_KEY,0);
+            if(queue.size()>0&& queue.get(pos).exists()) {
                 setSongDetails(pos);
                 play_current_song(pos);
             }
@@ -396,11 +400,12 @@ public class now_playing_fragment extends Fragment {
         //File song = AllSongsArrayList.get(position);
         //txtSongName.setText(song.getName().toString().replace(".mp3", "").replace(".wav", ""));
         //getting other info
-        txtSongName.setText(AllSongsArrayList.get(position).getName().replace(".mp3", "").replace(".wav", ""));
+        txtSongName.setText(queue.get(position).getName().replace(".mp3", "").replace(".wav", ""));
         txtArtistName.setText("<unknown>");
-        String CanonicalPath=AllSongsArrayList.get(position).getAbsolutePath();
+
+        String CanonicalPath= queue.get(position).getAbsolutePath();
         try {
-            CanonicalPath = AllSongsArrayList.get(position).getCanonicalPath();
+            CanonicalPath = queue.get(position).getCanonicalPath();
         } catch (IOException e) {
             e.printStackTrace();
         }
