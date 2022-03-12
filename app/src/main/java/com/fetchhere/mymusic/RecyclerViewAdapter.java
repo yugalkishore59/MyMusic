@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,27 +12,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.fetchhere.mymusic.fragments.now_playing_fragment;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
     private Context context;
-    private List<File> songtList;
+    private List<File> queue;
+
     SharedPreferences sharedPreferencesVariables;
-    SharedPreferences.Editor editor;
+    public static final String SHARED_PREF_KEY = "shared Preferences Variables";
+    public static final String CURR_SONG_KEY = "current Song Index";
 
     public RecyclerViewAdapter(Context context, List<File> songtList) {
         this.context = context;
-        this.songtList = songtList;
+        this.queue = songtList;
     }
     // Where to get the single card as viewholder Object
     @NonNull
@@ -48,12 +44,12 @@ public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapt
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.ViewHolder holder, int position) {
         //getting song name
-        File song = songtList.get(position);
+        File song = queue.get(position);
         holder.songName.setText(song.getName().toString().replace(".mp3", "").replace(".wav", ""));
         //getting other info
-        String CanonicalPath=songtList.get(position).getAbsolutePath();
+        String CanonicalPath= queue.get(position).getAbsolutePath();
         try {
-            CanonicalPath = songtList.get(position).getCanonicalPath();
+            CanonicalPath = queue.get(position).getCanonicalPath();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,7 +90,7 @@ public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapt
     //how many  viewholder objects
     @Override
     public int getItemCount() {
-        return songtList.size();
+        return queue.size();
     }
 
     //what to do when we click on viewholder object
@@ -118,9 +114,9 @@ public class RecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerViewAdapt
         public void onClick(View view) {
             int position = this.getAdapterPosition();
             ViewPager viewPager = (ViewPager) ((Activity)context).findViewById(R.id.view_pager);
-            sharedPreferencesVariables=context.getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
+            sharedPreferencesVariables=context.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferencesVariables.edit();
-            editor.putInt("currentSongIndex", position);
+            editor.putInt(CURR_SONG_KEY, position);
             editor.commit();
             viewPager.setCurrentItem(1);
         }
