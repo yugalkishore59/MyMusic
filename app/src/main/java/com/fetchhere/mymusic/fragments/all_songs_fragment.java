@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,11 +31,11 @@ import java.util.Comparator;
 
 public class all_songs_fragment extends Fragment {
     private  RecyclerView recyclerView;
-    private TextView no_songs_text;
     private RecyclerViewAdapter recyclerViewAdapter;
-    public ArrayList<File> allSongs,queue;
-    //ArrayList<File> AllSongsArrayListBackup;
     Context thisContext;
+
+    private TextView no_songs_text;
+    public ArrayList<File> allSongs,queue;
 
     SharedPreferences sharedPreferencesVariables;
     SharedPreferences.Editor editor;
@@ -49,42 +50,30 @@ public class all_songs_fragment extends Fragment {
     Button BtnPlayAll, BtnShuffle;
     TextView totalSongs;
 
-    /*public all_songs_fragment(ArrayList<File> SongsArrayList){
-        allSongs =AllSongsArrayListBackup=SongsArrayList;
-    }
-    public all_songs_fragment(ArrayList<File> SongsArrayList){
-        //allSongs =AllSongsArrayListBackup=SongsArrayList;
-        thisContext=this.getActivity();
-        allSongs=((MainActivity)getActivity()).readListFromPref(this,((MainActivity)getActivity()).LIST_KEY);
-        queue=((MainActivity)getActivity()).readListFromPref(this,((MainActivity)getActivity()).QUEUE_KEY);
-        AllSongsArrayListBackup=(ArrayList<File>) allSongs.clone();
-    }*/
     public all_songs_fragment(ArrayList<File> allSongsList,ArrayList<File> queueList ){
         allSongs = allSongsList;
         queue=queueList;
-        //AllSongsArrayListBackup=queue;
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        //thisContext=container.getContext();
-        thisContext=this.getActivity();
+        thisContext=this.getActivity(); //getting context
         return inflater.inflate(R.layout.fragment_all_songs_fragment, container, false);
     }
+
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         sharedPreferencesVariables =thisContext.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
         editor = sharedPreferencesVariables.edit();
-        currentSort= sharedPreferencesVariables.getInt(SORT_KEY,0);
+        currentSort= sharedPreferencesVariables.getInt(SORT_KEY,0); //getting sorting order from shared preferences
 
         recyclerView=(RecyclerView) view.findViewById(R.id.recycler_View);
         no_songs_text=(TextView) view.findViewById(R.id.no_songs_textView);
@@ -94,94 +83,95 @@ public class all_songs_fragment extends Fragment {
 
         if(allSongs.size()==0){
             no_songs_text.setVisibility(View.VISIBLE);
+            /*BUG: suppose there are no songs which means no recycler view is created to list any song. Because it is created in else condition.
+            After that user added some songs and rescanned directory. Then this fragment will get the list but there will be no recycler view to list songs.
+            So there should always be a recycler view OR this whole fragment needs to be refreshed.*/
         }
         else {
             no_songs_text.setVisibility(View.GONE);
-            totalSongs.setText(String.valueOf(allSongs.size())+" songs");
+            totalSongs.setText(allSongs.size()+" songs");
             recyclerView.setLayoutManager(new LinearLayoutManager(thisContext));
 
-            //recyclerViewAdapter = new RecyclerViewAdapter(thisContext, allSongs);
-            recyclerViewAdapter = new RecyclerViewAdapter(thisContext, queue);
-
-            recyclerView.setAdapter(recyclerViewAdapter);
+            recyclerViewAdapter = new RecyclerViewAdapter(thisContext, queue); //giving queue to adapter
+            recyclerView.setAdapter(recyclerViewAdapter); //setting adapter ie. listing songs from queue
 
             sortingSpinner =(Spinner) view.findViewById(R.id.spinner_sort);
-
-            //recyclerView.setHasFixedSize(true);
-
             //Creating the ArrayAdapter instance having the sorting method list
             ArrayAdapter spinnerArrarAdapter = new ArrayAdapter(thisContext,android.R.layout.simple_spinner_item,sorting_methods);
             spinnerArrarAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             //Setting the ArrayAdapter data on the Spinner
             sortingSpinner.setAdapter(spinnerArrarAdapter);
-            sortingSpinner.setSelection(currentSort);
+
+            sortingSpinner.setSelection(currentSort); //setting sorting order (from shared preferences)
             sortingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
             {
                 @Override
                 public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
                 {
                     switch (position){
-                        case 0:
-                            /*allSongs =(ArrayList<File>) AllSongsArrayListBackup.clone();
-                            recyclerViewAdapter = new RecyclerViewAdapter(thisContext, allSongs);
-                            recyclerView.setAdapter(recyclerViewAdapter);*/
-                            queue=(ArrayList<File>) allSongs.clone();
+                        case 0: // Default sort ie. folder(A-Z) wise
+                            queue=(ArrayList<File>) allSongs.clone(); //getting queue from allSongs(ie. from backup)
                             recyclerViewAdapter = new RecyclerViewAdapter(thisContext, queue);
                             recyclerView.setAdapter(recyclerViewAdapter);
                             currentSort=0;
                             break;
-                        case 1:
+                        case 1: // A-Z sort
                             Collections.sort(queue, new Comparator<File>() {
                                 @Override
                                 public int compare(File file, File t1) {
                                     return file.getName().compareToIgnoreCase(t1.getName());
                                 }
                             });
-
-                            recyclerViewAdapter.notifyDataSetChanged();
+                            recyclerViewAdapter.notifyDataSetChanged(); //notifying change in list
                             currentSort=1;
                             break;
-                        case 2:
+                        case 2: // Z-A sort
                             Collections.sort(queue, new Comparator<File>() {
                                 @Override
                                 public int compare(File file, File t1) {
-                                    return -1*file.getName().compareToIgnoreCase(t1.getName());
+                                    return -1*file.getName().compareToIgnoreCase(t1.getName()); //-ve sort makes Z-A
                                 }
                             });
-                            recyclerViewAdapter.notifyDataSetChanged();
+                            recyclerViewAdapter.notifyDataSetChanged(); //notifying change in list
                             currentSort=2;
                             break;
                         default:
                             break;
                     }
+                    //updating queue and sorting order in shared preferences
                     ((MainActivity)getActivity()).writeArrayListInPref(thisContext.getApplicationContext(),queue,((MainActivity)getActivity()).QUEUE_KEY);
-                    //SharedPreferences.Editor editor = sharedPreferencesVariable.edit();
                     editor.putInt(SORT_KEY, currentSort);
                     editor.commit();
                 }
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parentView) {
-                    // your code here
+                    //do nothing
                 }
             });
-            //return rootView;
+
+            //this button is to play first song
             BtnPlayAll.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    /*as now_playing_fragment automatically refresh its data on resuming so
+                    we need to change the data and resume now_playing_fragment to see changes*/
                     ViewPager viewPager = (ViewPager) ((Activity)thisContext).findViewById(R.id.view_pager);
-                    //sharedPreferencesVariable=thisContext.getSharedPreferences("shared Preferences Variables", Context.MODE_PRIVATE);
-                    //SharedPreferences.Editor editor = sharedPreferencesVariable.edit();
-                    editor.putInt(CURR_SONG_KEY, 0);
+                    editor.putInt(CURR_SONG_KEY, 0); //index of 1st song
                     editor.commit();
-                    viewPager.setCurrentItem(1);
+                    viewPager.setCurrentItem(1); //resuming now_playing_fragment
+
+                    /*BUG: if song with index "n" was/is playing last time and user changed sorting order or shuffled the list,
+                    and then user tap on song with index "n" (which is a different song this time)
+                    then app will keep on playing the older song. user has to tap on any other song
+                    to see the effect in now_playing_fragment.*/
                 }
             });
 
+            //this button will shuffle the list
             BtnShuffle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     Collections.shuffle(queue);
                     recyclerViewAdapter.notifyDataSetChanged();
                     ((MainActivity)getActivity()).writeArrayListInPref(thisContext.getApplicationContext(),queue,((MainActivity)getActivity()).QUEUE_KEY);
