@@ -1,5 +1,6 @@
 package com.fetchhere.mymusic;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager view_pager;
     public view_page_adapter adapter;
 
+    /*allSongs is kind of backup of scanned songs list and queue is the main song list.
+    most of the operations will be done on queue*/
     ArrayList<File> allSongs,queue;
 
     SharedPreferences sharedPreferencesVariables;
@@ -47,33 +50,39 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         tab_layout = findViewById(R.id.tab_layout);
         view_pager = findViewById(R.id.view_pager);
 
+        //setting tab layout with view pager
         tab_layout.setupWithViewPager(view_pager);
 
         sharedPreferencesVariables=this.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
         editor = sharedPreferencesVariables.edit();
 
+        //checking permission for reading storage
         checkForPermission();
 
     }
 
+    //function to check storage permission
     void checkForPermission() {
         int result = ContextCompat.checkSelfPermission(MainActivity.this, READ_EXTERNAL_STORAGE);
         if (result == PackageManager.PERMISSION_DENIED) {
-            requestPermission();
-        } else continueActivity();
+            requestPermission(); //request for permission if permission is not given
+        } else
+            continueActivity(); //continue if permission is already given
 
     }
 
+    //function to request for read storage permission
     void requestPermission() {
         ActivityCompat.requestPermissions(MainActivity.this,
                 new String[]{READ_EXTERNAL_STORAGE}, 1);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 1) {
@@ -83,100 +92,28 @@ public class MainActivity extends AppCompatActivity {
 
                 if (permission.equals(READ_EXTERNAL_STORAGE)) {
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                        continueActivity();
+                        continueActivity(); //continue if permission granted
                     } else {
-                        requestPermission();
+                        requestPermission(); //request again if denied
                     }
                 }
             }
         }
     }
 
-    public static void writeArrayListInPref(Context context, ArrayList<File> list, String key) {
-        Gson gson = new Gson();
-        String jsonString = gson.toJson(list);
-
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(key, jsonString);
-        editor.apply();
-    }
-
-    public static ArrayList<File> readListFromPref(Context context,String key) {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        String jsonString = pref.getString(key, "");
-
-        Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<File>>() {}.getType();
-        ArrayList<File> list = gson.fromJson(jsonString, type);
-        return list;
-    }
-
-    public ArrayList<File> findSong(File rootFolder) {
-
-        //ArrayList to store all songs
-        ArrayList<File> arrayList = new ArrayList<>();
-        File[] files = rootFolder.listFiles();
-        Uri uri;
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-
-
-        for (File singleFile : files) {
-
-            //Adding the directory to arrayList if it is not hidden
-            if (singleFile.isDirectory() && !singleFile.isHidden()) {
-
-                File noMedia=new File(singleFile.getAbsolutePath()+"/.nomedia");
-                if(!noMedia.exists()) arrayList.addAll(findSong(singleFile));
-
-            } else {
-                //Adding the single music file to ArrayList
-                if (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) {
-
-                    uri = Uri.parse(singleFile.getAbsolutePath());
-                    mmr.setDataSource(this,uri);
-                    String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                    int millSecond = Integer.parseInt(durationStr);
-                    if(millSecond>60000)arrayList.add(singleFile);
-                }
-            }
-        }
-
-        return arrayList;
-    }
-
-    void scanMusic(){
-
-
-        File[] fileDirectory = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
-        for (int i = 0; i< fileDirectory.length; i++)
-        {
-            String path = fileDirectory[i].getParent().replace("/Android/data/","").replace(getPackageName(),"");
-            fileDirectory[i]= new File(path);
-        }
-
-        allSongs=findSong(fileDirectory[0]);
-        for(int i = 1; i< fileDirectory.length; i++)
-        allSongs.addAll(findSong(fileDirectory[i]));
-
-        writeArrayListInPref(this,allSongs,LIST_KEY);
-        editor.putInt(CURR_SONG_KEY, 0);
-        editor.putInt(SORT_KEY, 0);
-        editor.commit();
-
-    }
-
+    //this function is called after the storage read permission is granted
     void continueActivity() {
-
-        allSongs = readListFromPref(this,LIST_KEY);
+        allSongs = readListFromPref(this,LIST_KEY); //reading allSongs from shared preferences (if scanned already)
         if (allSongs == null)
-            scanMusic();
-        queue= readListFromPref(this,QUEUE_KEY);
+            scanMusic(); //scanning music if not scanned already
+        queue= readListFromPref(this,QUEUE_KEY); //reading queue from shared preferences (if exist)
         if (queue == null) {
+            //creating and storing queue to shared preferences if it doesn't exist
             queue = (ArrayList<File>) allSongs.clone();
             writeArrayListInPref(this,queue,QUEUE_KEY);
         }
 
+        //creating fragments
         adapter = new view_page_adapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         adapter.addFragments(new all_songs_fragment(allSongs,queue), "All songs");
         adapter.addFragments(new now_playing_fragment(queue), "Playing");
@@ -185,5 +122,75 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //function to get all storage directories of device and list songs from them
+    void scanMusic(){
+        File[] fileDirectory = ContextCompat.getExternalFilesDirs(getApplicationContext(),null);
+        //above line will return directories "/Android/data/<package name>" from all the external/internal storages of device
+
+        for (int i = 0; i< fileDirectory.length; i++) {
+            //getting root path of each directory
+            String path = fileDirectory[i].getParent().replace("/Android/data/","").replace(getPackageName(),"");
+            fileDirectory[i]= new File(path);
+        }
+
+        allSongs=findSong(fileDirectory[0]); //calling function to scan music from fileDirectory[0] ie. internal storage
+        for(int i = 1; i< fileDirectory.length; i++)
+            allSongs.addAll(findSong(fileDirectory[i])); //adding music from other external storages
+
+        //updating shared preferences
+        writeArrayListInPref(this,allSongs,LIST_KEY);
+        editor.putInt(CURR_SONG_KEY, 0);
+        editor.putInt(SORT_KEY, 0);
+        editor.commit();
+
+    }
+
+    //function to search music(mp3 and wav only) from provided directory
+    public ArrayList<File> findSong(File rootFolder) {
+        ArrayList<File> arrayList = new ArrayList<>();
+        File[] files = rootFolder.listFiles();
+        Uri uri;
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever(); //to filter songs by duration
+
+        assert files != null;
+        for (File singleFile : files) {
+
+            //Adding the directory to arrayList if it is not hidden by Recursion
+            if (singleFile.isDirectory() && !singleFile.isHidden()) {
+                File noMedia=new File(singleFile.getAbsolutePath()+"/.nomedia");
+                if(!noMedia.exists()) arrayList.addAll(findSong(singleFile)); //Recursion
+
+            } else {
+                //Adding the single music file to ArrayList
+                if (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) {
+                    uri = Uri.parse(singleFile.getAbsolutePath());
+                    mmr.setDataSource(this,uri);
+                    String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                    int millSecond = Integer.parseInt(durationStr);
+                    if(millSecond>60000)arrayList.add(singleFile); //1 minute duration filter
+                }
+            }
+        }
+        return arrayList;
+    }
+
+    //function to write ArrayList<File> object in shared preferences using gson
+    public static void writeArrayListInPref(Context context, ArrayList<File> list, String key) {
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(list);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(key, jsonString);
+        editor.apply();
+    }
+
+    //function to read ArrayList<File> object from shared preferences using gson
+    public static ArrayList<File> readListFromPref(Context context,String key) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        String jsonString = pref.getString(key, "");
+        Gson gson = new Gson();
+        Type type = new TypeToken<ArrayList<File>>() {}.getType();
+        return gson.fromJson(jsonString, type);
+    }
 
 }
